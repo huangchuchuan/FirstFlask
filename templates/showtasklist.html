@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container-fluid" id="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message[0]=='*' %}
+                        <div class="row alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"><span
+                                    aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <strong>成功</strong> {{ message[1:] }}
+                        </div>
+                    {% else %}
+                        <div class="row alert alert-warning alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"><span
+                                    aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <strong>警告</strong> {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <div class="col-*-12">
+                <div id="toolbar" class="form-group">
+                    <div class="export btn-group" id="export">
+                        <select class="form-control">
+                            <option value="basic">导出当前记录</option>
+                            <option value="all">导出所有记录</option>
+                            <option value="selected">导出所选记录</option>
+                        </select>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary form-control" data-toggle="modal" data-target="#addModal">添加记录
+                        </button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-danger form-control" id="deletetask">删除所选</button>
+                    </div>
+
+                </div>
+
+                <table id="mytab" class="table table-hover"></table>
+
+                <div id="delerrormodal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h4 class="modal-title" id="delerrorModalLabel">错误</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>请选择要删除的记录</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel">添加记录</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form class="form-horizontal" role="form" action="/addtask" method="post">
+                                    {{ form.csrf_token }}
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">标题</label>
+                                        <div class="col-sm-10">
+                                            {{ form.title(class="form-control", type="text", placeholder="请输入标题", required=True) }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">客户</label>
+                                        <div class="col-sm-10">
+                                            {{ form.customer(class="form-control", type="text", placeholder="请输入客户名字", required=True) }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">类型</label>
+                                        <div class="col-sm-10">
+                                            {{ form.task_type(class="form-control") }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">现象</label>
+                                        <div class="col-sm-10">
+                                            {{ form.phenomenon(type="text", class="form-control", placeholder="请输入现象描述", required=True) }}
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                        <button type="submit" class="btn btn-primary" id="addRecord">提交</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="deltaskmodal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h4 class="modal-title" id="delerrorModalLabel">删除记录</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form class="form-horizontal" role="form" id="deltaskform" action="/deltask" method="POST">
+                                    {{ deltaskform.csrf_token }}
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">即将删除ID为以下的记录</label>
+                                        <div class="col-sm-10">
+                                            {{ deltaskform.tids(class="form-control", readonly=True) }}
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+                                        <button type="submit" class="btn btn-primary">提交</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block myscript %}
+    <link rel="stylesheet" href="../static/css/bootstrap-table.css"/>
+    <script src="../static/js/bootstrap-table.js"></script>
+
+    <script src="../static/js/locale/bootstrap-table-zh-CN.js"></script>
+    <!-- advanced search -->
+    <script src="../static/js/extensions/toolbar/bootstrap-table-toolbar.js"></script>
+    <!-- end /advance search -->
+    <!-- multi-sort -->
+    <script src="../static/js/extensions/multiple-sort/bootstrap-table-multiple-sort.js"></script>
+    <!-- exportTable -->
+    <script src="../static/js/extensions/export/bootstrap-table-export.js"></script>
+    <script src="../static/js/extensions/export/tableExport.js"></script>
+
+    <script type="text/javascript">
+        var csrftoken = "{{ csrf_token() }}";
+
+        var sprintf = function (str) {
+            var args = arguments,
+                    flag = true,
+                    i = 1;
+
+            str = str.replace(/%s/g, function () {
+                var arg = args[i++];
+
+                if (typeof arg === 'undefined') {
+                    flag = false;
+                    return '';
+                }
+                return arg;
+            });
+            return flag ? str : '';
+        };
+        var tableConfig = {
+            url: "tasklist",//数据源
+            dataField: "rows",//服务端返回数据键值 就是说记录放的键值是rows，分页时使用总记录数的键值为total
+{#            height: tableHeight(),//高度调整#}
+            search: true,//是否搜索
+            advancedSearch: true,//高级搜索
+            sortName: "tid",
+            sortOrder: 'desc',
+            showExport: true,//导出按钮
+            //clickToSelect: true,//允许选择
+            idTable: "advancedTable",
+            pagination: true,//是否分页
+            pageSize: 20,//单页记录数
+            pageList: [5, 10, 20, 50],//分页步进值
+            sidePagination: "server",//服务端分页
+            contentType: "application/x-www-form-urlencoded",//请求数据内容格式 默认是 application/json 自己根据格式自行服务端处理
+            dataType: "json",//期待返回数据类型
+            method: "post",//请求方式
+            searchAlign: "left",//查询框对齐方式
+            queryParamsType: "limit",//查询参数组织方式
+            queryParams: function getParams(params) {
+                //params obj
+                params.other = "otherInfo";
+                return params;
+            },
+            showMultiSort: true,//多级排序
+            searchOnEnterKey: false,//回车搜索
+            showRefresh: true,//刷新按钮
+            //showColumns: true,//列选择按钮
+            buttonsAlign: "left",//按钮对齐方式
+            toolbar: "#toolbar",//指定工具栏
+            toolbarAlign: "right",//工具栏对齐方式
+            columns: [
+                {
+                    title: "全选",
+                    field: "state",
+                    checkbox: true,
+                    width: 20,//宽度
+                    align: "center",//水平
+                    valign: "middle"//垂直
+                },
+                {
+                    title: "ID",//标题
+                    field: "tid",//键名
+                    sortable: true,//是否可排序
+                    order: "desc",//默认排序方式
+                },
+                {
+                    title: "标题",
+                    field: "title",
+                    sortable: true,
+                },
+                {
+                    title: "客户",
+                    field: "customer",
+                    sortable: true,
+                },
+                {
+                    title: "类型",
+                    field: "type",
+                    sortable: true,
+                    formatter: 'typeformat',
+                },
+                {
+                    title: "开始时间",
+                    field: "begintime",
+                    sortable: true,
+                },
+                {
+                    title: "结束时间",
+                    field: "endtime",
+                    sortable: true,
+                },
+                {
+                    title: "现象",
+                    field: "phenomenon",
+                    sortable: true,
+                    formatter: "phenomenonformat",
+                },
+                {
+                    title: "解决方案",
+                    field: "solution",
+                    sortable: true,
+                    formatter: "solutionformat",
+                },
+                {
+                    title: "状态",
+                    field: "status",
+                    sortable: true,
+                    formatter: 'statusformat',
+                },
+                {
+                    title: "技术经理",
+                    field: "author",
+                    sortable: true,
+                },
+            ],
+
+            locale: "zh-CN", //中文支持
+            detailView: true, //是否显示详情折叠
+            detailFormatter: function (index, row, element) {
+                var tmplate = '<form class="form-horizontal" role="form" id="updatetaskform" action="/updatetask" method="POST">\
+                                <input id="csrf_token" name="csrf_token" type="hidden" value="%s">\
+                                <div class="form-group">\
+                                    <input type="hidden" id="modifytid" name="modifytid" value="%s">\
+                                    <label class="col-sm-2 control-label">现象</label>\
+                                    <div class="col-sm-10">\
+                                        <input type="text" id="modifyphenomenon" name="modifyphenomenon" class="form-control" value="%s" required>\
+                                    </div>\
+                                </div>\
+                                <div class="form-group">\
+                                    <label class="col-sm-2 control-label">解决方案</label>\
+                                    <div class="col-sm-10">\
+                                        <input type="text" id="modifysolution" name="modifysolution" class="form-control" value="%s" required>\
+                                    </div>\
+                                </div>\
+                                <div class="form-group">\
+                                    <label class="col-sm-2 control-label">状态</label>\
+                                    <div class="col-sm-10">\
+                                        <select id="modifystatus" name="modifystatus" class="form-control">\
+                                        <option value="处理中" %s>处理中</option>\
+                                        <option value="已解决" %s>已解决</option>\
+                                        <option value="将来解决" %s>将来解决</option>\
+                                        <option value="无法解决" %s>无法解决</option>\
+                                        </select>\
+                                    </div>\
+                                </div>\
+                                <div class="form-group">\
+                                    <div class="modal-footer">\
+                                        <button type="submit" class="btn btn-primary">提交更新</button>\
+                                    </div>\
+                                </div>\
+                            </form>';
+
+                if(row.status=='处理中')
+                    tmplate = sprintf(tmplate, csrftoken, row.tid, row.phenomenon, row.solution, 'selected','','','');
+                else if(row.status=='已解决')
+                    tmplate = sprintf(tmplate, csrftoken, row.tid, row.phenomenon, row.solution, '','selected','','');
+                else if(row.status=='将来解决')
+                    tmplate = sprintf(tmplate, csrftoken, row.tid, row.phenomenon, row.solution, '','','selected','');
+                else
+                    tmplate = sprintf(tmplate, csrftoken, row.tid, row.phenomenon, row.solution, '','','','selected');
+
+                return tmplate;
+            }
+        }
+        $(function () {
+            //根据窗口调整表格高度
+{#            $(window).resize(function () {#}
+{#                $('#mytab').bootstrapTable('resetView', {#}
+{#                    height: tableHeight()#}
+{#                })#}
+{#            })#}
+
+            $('#mytab').bootstrapTable(tableConfig);
+
+        })
+{#        function tableHeight() {#}
+{#            return $(window).height() - 50;#}
+{#        }#}
+
+        function infoFormatter(value, row, index) {
+            return "id:" + row.tid + " name:" + row.name + " age:" + row.age;
+        }
+
+        function statusformat(value, row, index) {
+            if(value=="处理中")
+                return "<button class=\"btn btn-warning\" disabled=\"disabled\">"+value+"</button>";
+            else if(value=="已解决")
+                return "<button class=\"btn btn-success\" disabled=\"disabled\">"+value+"</button>";
+            else if(value=="将来解决")
+                return "<button class=\"btn btn-info\" disabled=\"disabled\">"+value+"</button>";
+            else
+                return "<button class=\"btn btn-danger\" disabled=\"disabled\">"+value+"</button>";
+        }
+
+        function typeformat(value, row, index) {
+            if(value=="变更")
+                return "<button class=\"btn btn-warning\" disabled=\"disabled\">"+value+"</button>";
+            else if(value=="故障")
+                return "<button class=\"btn btn-danger\" disabled=\"disabled\">"+value+"</button>";
+            else if(value=="需求")
+                return "<button class=\"btn btn-info\" disabled=\"disabled\">"+value+"</button>";
+            else
+                return "<button class=\"btn btn-success\" disabled=\"disabled\">"+value+"</button>";
+        }
+
+        function phenomenonformat(value, row, index) {
+            var tmplate = '<div class="modal fade" id="phenomenon%sModal" tabindex="-1" role="dialog" aria-hidden="true">\
+					<div class="modal-dialog">\
+                        <div class="modal-content">\
+                            <div class="modal-header">\
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">\
+                                    &times;\
+                                </button>\
+                                <h4 class="modal-title" id="phenomenonModalLabel">现象</h4>\
+                            </div>\
+                            <div class="modal-body">\
+                                <p class="lead">\
+                                %s\
+                                </p>\
+                            </div>\
+                            <div class="modal-footer">\
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>';
+            tmplate = sprintf(tmplate, row.tid, value);
+            var html = '<button class="btn btn-link" data-toggle="modal" data-target="#phenomenon%sModal">点击查看</button>';
+            html = sprintf(html, row.tid);
+            $('#mytab').after(tmplate);
+
+            return html;
+        }
+
+        function solutionformat(value, row, index) {
+            var tmplate = '<div class="modal fade" id="solution%sModal" tabindex="-1" role="dialog" aria-hidden="true">\
+					<div class="modal-dialog">\
+                        <div class="modal-content">\
+                            <div class="modal-header">\
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">\
+                                    &times;\
+                                </button>\
+                                <h4 class="modal-title" id="solutionModalLabel">解决方案</h4>\
+                            </div>\
+                            <div class="modal-body">\
+                                <p class="lead">\
+                                %s\
+                                </p>\
+                            </div>\
+                            <div class="modal-footer">\
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>';
+            tmplate = sprintf(tmplate, row.tid, value);
+            var html = '<button class="btn btn-link" data-toggle="modal" data-target="#solution%sModal">点击查看</button>';
+            html = sprintf(html, row.tid);
+            $('#mytab').after(tmplate);
+
+            return html;
+        }
+
+        // For export table
+        var $table = $('#mytab');
+        $(function () {
+            $('#toolbar').find('select').change(function () {
+                tableConfig.exportDataType = $(this).val();
+                $table.bootstrapTable('destroy').bootstrapTable(tableConfig);
+            });
+        })
+
+        function getIdSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function(row) {
+                return row.tid
+            });
+        }
+
+        $('#deletetask').click(function () {
+            ids = getIdSelections();
+            if(ids==''){
+                $('#delerrormodal').modal();
+            }
+            else{
+                var data_str = ''+ids[0]
+                for(var i=1;i<ids.length;i+=1){
+                    data_str+=','+ids[i];
+                }
+                $('#tids').val(data_str);
+                $('#deltaskmodal').modal();
+            }
+        });
+    </script>
+{% endblock %}

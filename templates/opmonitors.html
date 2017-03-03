@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container-fluid">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message[0]=='*' %}
+                        <div class="row alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <strong>成功</strong> {{ message[1:] }}
+                        </div>
+                    {% else %}
+                        <div class="row alert alert-warning alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <strong>警告</strong> {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <div class="col-sm-4 col-md-2">
+                <div class="img-rounded text-center">
+                    <a href="#" data-toggle="modal" data-target="#addMonModal">
+                        <img class="url-icon" alt="Add a Monitor" src="static/favicons/add.ico">
+                        <div class="caption">点击增加新监控</div>
+                    </a>
+                </div>
+            </div>
+
+            {% if show_del_update == True %}
+                <div class="col-sm-4 col-md-2">
+                <div class="img-rounded text-center">
+                    <a href="#" data-toggle="modal" data-target="#deleteMonModal">
+                        <img class="url-icon" alt="Delete a Monitor" src="static/favicons/delete.ico">
+                        <div class="caption">点击删除监控</div>
+                    </a>
+                </div>
+                </div>
+                <div class="col-sm-4 col-md-2">
+                <div class="img-rounded text-center">
+                    <a href="#" data-toggle="modal" data-target="#updateMonModal">
+                        <img class="url-icon" alt="Update a Monitor" src="static/favicons/update.ico">
+                        <div class="caption">点击更新监控</div>
+                    </a>
+                </div>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="addMonModal" tabindex="-1" role="dialog" aria-labelledby="addMonModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">新建一个监控</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form" id="addMonForm" action="/addmon" method="POST">
+                            {{ addmonform.csrf_token }}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">名称</label>
+                                <div class="col-sm-10">
+                                    {{ addmonform.mon_aliname(class="form-control", type="text", placeholder="如: 监控", required=True) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">网址</label>
+                                <div class="col-sm-10">
+                                    {{ addmonform.mon_url(class="form-control", type="text", placeholder="如: http://www.yourwebsite.com", required=True, autofocus=True) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">类型</label>
+                                <div class="col-sm-10">
+                                    {{ addmonform.mon_type(class="form-control", required=True) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">用户名</label>
+                                <div class="col-sm-10">
+                                    {{ addmonform.mon_username(class="form-control", type="text", placeholder="如: admin", required=True) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">密码</label>
+                                <div class="col-sm-10">
+                                    {{ addmonform.mon_password(class="form-control", placeholder="如: password", required=True) }}
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </form>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div>
+        </div><!-- /.modal -->
+    <!-- modal delete -->
+        <div class="modal fade" id="deleteMonModal" tabindex="-1" role="dialog" aria-labelledby="deleteMonModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="deleteMonModalLabel">删除一个或多个监控</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form" id="deletemonform" action="/delmon" method="POST">
+                            {{ delmon_form.csrf_token }}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">监控</label>
+                                <div class="col-sm-10">
+                                    {{ delmon_form.mon_list(class="form-control selectpicker show-tick") }}
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="updateMonModal" tabindex="-1" role="dialog" aria-labelledby="updateMonModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">修改一个监控</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form" id="updateMonForm" action="/updatemon" method="POST">
+                            {{ updatemonform.csrf_token }}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">目标</label>
+                                <div class="col-sm-10">
+                                    {{ updatemonform.upmon_list(class="form-control selectpicker show-tick", autofocus=True) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">名称</label>
+                                <div class="col-sm-10">
+                                    {{ updatemonform.upmon_aliname(class="form-control", type="text",placeholder="不填写表示不更新") }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">网址</label>
+                                <div class="col-sm-10">
+                                    {{ updatemonform.upmon_url(class="form-control", type="text", placeholder="不填写表示不更新") }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">类型</label>
+                                <div class="col-sm-10">
+                                    {{ updatemonform.upmon_type(class="form-control", placeholder="不填写表示不更新") }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">用户名</label>
+                                <div class="col-sm-10">
+                                    {{ updatemonform.upmon_username(class="form-control", type="text", placeholder="不填写表示不更新") }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">密码</label>
+                                <div class="col-sm-10">
+                                    {{ updatemonform.upmon_password(class="form-control", placeholder="不填写表示不更新") }}
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </form>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div>
+        </div><!-- /.modal -->
+    </div>
+{% endblock %}
+{% block myscript %}
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="../static/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="../static/js/bootstrap-select.min.js"></script>
+{% endblock %}

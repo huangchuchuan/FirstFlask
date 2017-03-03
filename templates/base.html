@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% block myhead %}{% endblock %}
+
+    <title>{{ title }}</title>
+
+    <!-- Core CSS - Include with every page -->
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <!-- Page-Level Plugin CSS - Blank -->
+
+    <!-- SB Admin CSS - Include with every page -->
+    <link href="../static/css/sb-admin.css" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/"><strong>业务管理后台</strong></a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <ul class="nav navbar-top-links navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-user fa-fw"></i> {{ username }} <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> 注销</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+
+            <div class="navbar-default navbar-static-side" role="navigation">
+                <div class="sidebar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li>
+                            <a href="/"><i class="fa fa-dashboard fa-fw"></i> 首页</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-desktop fa-fw"></i> 监控<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/monitors">查看警报</a>
+                                </li>
+                                <li>
+                                    <a href="/opmonitors">相关操作</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="/webs"><i class="fa fa-sitemap fa-fw"></i> 网址</a>
+                        </li>
+                        <li>
+                            <a href="/tasklist"><i class="fa fa-edit fa-fw"></i> 事务</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-group fa-fw"></i> 用户<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/adduser">增加用户</a>
+                                </li>
+                                <li>
+                                    <a href="/updateuser">更新用户</a>
+                                </li>
+                                <li>
+                                    <a href="/deluser">删除用户</a>
+                                </li>
+                            </ul>
+
+                        </li>
+                    </ul>
+                    <!-- /#side-menu -->
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">{{ page_header }}</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            {{ page_body }}
+            {% block content %}{% endblock %}
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Core Scripts - Include with every page -->
+    <script src="../static/js/jquery-1.10.2.js"></script>
+    <script src="../static/js/bootstrap.js"></script>
+    <script src="../static/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+
+    <!-- Page-Level Plugin Scripts - Blank -->
+
+    <!-- SB Admin Scripts - Include with every page -->
+    <script src="../static/js/sb-admin.js"></script>
+
+    <!-- Page-Level Demo Scripts - Blank - Use for reference -->
+    {% block myscript %}{% endblock %}
+</body>
+
+</html>

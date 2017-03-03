@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block myhead %}
+<meta http-equiv="refresh" content="30">
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message[0]=='*' %}
+                        <div class="row alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <strong>成功</strong> {{ message[1:] }}
+                        </div>
+                    {% else %}
+                        <div class="row alert alert-warning alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <strong>警告</strong> {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if all_message_num > 0 %}
+            {% if set_alarm == 1 %}
+                <form id="setalarm" action="/setalarm" method="post">
+                    <input value="alarm" hidden name="alarm">
+                    <button class="btn btn-danger" type="submit">关闭警报声</button>
+                </form>
+                <audio src="../static/audio/alarm.wav" autoplay loop hide>您的浏览器不支持 audio 标签。</audio>
+            {% else %}
+                <form id="setalarm" action="/setalarm" method="post">
+                    <input value="alarm" hidden name="alarm">
+                    <button class="btn btn-primary" type="submit">打开警报声</button>
+                </form>
+            {% endif %}
+        {% endif %}
+
+        {{ tables }}
+
+    </div>
+{% endblock %}
+{% block myscript %}
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="../static/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="../static/js/bootstrap-select.min.js"></script>
+{% endblock %}

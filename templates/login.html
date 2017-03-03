@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+
+    <script src="../static/js/jquery-1.10.2.js"></script>
+    <script src="../static/js/bootstrap.js"></script>
+
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/flex-css-layout.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/main.css"/>
+
+</head>
+
+<body>
+<div flex="main:center cross:center" class="login-container">
+    <div class="login">
+        <form id="form" class="wx-login-form" action="/login" method="POST">
+            <div id="login-owl">
+                <div class="login-hand login-hand-focus"></div>
+                <div class="login-hand-r login-hand-r-focus"></div>
+                <div class="login-arms">
+                    <div class="login-arm login-arm-focus"></div>
+                    <div class="login-arm-r login-arm-r-focus"></div>
+                </div>
+            </div>
+            <div class="login-pad">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message[0]=='*' %}
+                               <div class="login-control-group">
+                                    <div class="login-controls">
+                                        <div class="login-alert-form-control alert alert-success alert-dismissible" role="alert">
+                                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                            <strong>成功</strong> {{ message[1:] }}
+                                        </div>
+                                    </div>
+                               </div>
+                            {% else %}
+                                <div class="login-control-group">
+                                    <div class="login-controls">
+                                        <div class="login-alert-form-control alert alert-warning alert-dismissible" role="alert">
+                                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                            <strong>警告</strong> {{ message }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% if form.errors %}
+                   {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+                       {% for error in field_errors %}
+                           <div class="login-control-group">
+                                <div class="login-controls">
+                                    <div class="login-alert-form-control alert alert-warning alert-dismissible" role="alert">
+                                        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                        <strong>警告</strong> {{ error }}
+                                    </div>
+                                </div>
+                           </div>
+                       {% endfor %}
+                   {% endfor %}
+                {% endif %}
+                {{ form.csrf_token }}
+                {% if form.errors %}
+                    <div class="login-control-group">
+                        <div class="login-controls"><label for="username" class="login-control-label">&#xe602;</label>
+                            {{ form.username(class="login-form-control", placeholder="用户名", required=True) }}
+                        </div>
+                    </div>
+                    <div class="login-control-group">
+                        <div class="login-controls"><label for="password" class="login-control-label">&#xe601;</label>
+                            {{ form.password(class="login-form-control",placeholder="密码",required=True,autofocus=True) }}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="login-control-group">
+                        <div class="login-controls"><label for="username" class="login-control-label">&#xe602;</label>
+                            {{ form.username(class="login-form-control", placeholder="用户名", required=True,autofocus=True) }}
+                        </div>
+                    </div>
+                    <div class="login-control-group">
+                        <div class="login-controls"><label for="password" class="login-control-label">&#xe601;</label>
+                            {{ form.password(class="login-form-control",placeholder="密码",required=True) }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+                <div class="login-actions">
+                    <button id="login" class="login-btn" type="submit">登录</button>
+                </div>
+        </form>
+    </div>
+</div>
+
+{#<script src="../static/js/reqwest.min.js"></script>#}
+<script src="../static/js/login.js"></script>
+</body>
+</html>
